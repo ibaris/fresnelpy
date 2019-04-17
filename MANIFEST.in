@@ -1,0 +1,2 @@
+recursive-include fresnespy/bin *.c
+recursive-include fresnespy/bin *.pyx
