@@ -61,7 +61,7 @@ class Fresnel(Sensor):
     # --------------------------------------------------------------------------------------------------------
     # Callable Methods
     # --------------------------------------------------------------------------------------------------------
-    def compute(self, xza=None):
+    def compute(self, xza=None, eps=None, h=None):
         """
 
         Parameters
@@ -76,12 +76,22 @@ class Fresnel(Sensor):
         if xza is None:
             xza = self.xza
 
-        if self.type == 'stokes':
-            reflection = reflection_matrix(xza, self.eps)
-        else:
-            reflection = reflection_matrix_extended(xza, self.eps)
+        if eps is None:
+            eps = self.eps
 
-        return loss_reflection(reflection, self.loss)
+        if h is None:
+            h = self.h
+
+        xza, eps, h = align_all((xza, eps, h))
+
+        if self.type == 'stokes':
+            reflection = reflection_matrix(xza, eps)
+        else:
+            reflection = reflection_matrix_extended(xza, eps)
+
+        loss = np.exp(-h * np.cos(xza) ** 2)
+
+        return loss_reflection(reflection, loss)
 
     # --------------------------------------------------------------------------------------------------------
     # Private Methods
