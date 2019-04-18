@@ -3,9 +3,14 @@
 Created on 18.04.19 by ibaris
 """
 from __future__ import division
-from rspy import Sensor, align_all
+
 import numpy as np
-from fresnelpy.bin.bin_fresnel import reflection_matrix, reflection_matrix_extended
+from rspy import Sensor, align_all
+
+from fresnelpy.auxiliary import FresnelResult
+from fresnelpy.bin.bin_fresnel import reflection_matrix, reflection_matrix_extended, loss_reflection
+
+__all__ = ['Fresnel']
 
 
 class Fresnel(Sensor):
@@ -40,10 +45,23 @@ class Fresnel(Sensor):
         self.h = 4 * self.rmsh ** 2 * self.wavenumber ** 2
         self.loss = np.exp(-self.h * np.cos(self.xza) ** 2)
 
+        self.__array = None
+        self.__I = None
+
+    # --------------------------------------------------------------------------------------------------------
+    # Properties
+    # --------------------------------------------------------------------------------------------------------
+    @property
+    def I(self):
+        if self.__I is None:
+            self.__I = self.__store_intensity()
+
+        return self.__I
+
     # --------------------------------------------------------------------------------------------------------
     # Callable Methods
     # --------------------------------------------------------------------------------------------------------
-    def compute(self, xza=None):
+    def compute(self, xza=None, eps=None, h=None):
         """
 
         Parameters
@@ -58,7 +76,39 @@ class Fresnel(Sensor):
         if xza is None:
             xza = self.xza
 
-        if self.type == 'stokes':
-            return reflection_matrix(xza, self.eps)
+        if eps is None:
+            eps = self.eps
 
-        return reflection_matrix_extended(xza, self.eps)
+        if h is None:
+            h = self.h
+
+        xza, eps, h = align_all((xza, eps, h))
+
+        if self.type == 'stokes':
+            reflection = reflection_matrix(xza, eps)
+        else:
+            reflection = reflection_matrix_extended(xza, eps)
+
+        loss = np.exp(-h * np.cos(xza) ** 2)
+
+        return loss_reflection(reflection, loss)
+
+    # --------------------------------------------------------------------------------------------------------
+    # Private Methods
+    # --------------------------------------------------------------------------------------------------------
+    def __store_intensity(self):
+        if self.__array is None:
+            self.__array = self.compute()
+
+        if self.type == 'stokes':
+            I = FresnelResult(array=self.__array,
+                              VV=self.__array[:, 0, 0],
+                              HH=self.__array[:, 1, 1])
+
+        else:
+            I = FresnelResult(array=self.__array,
+                              total=self.__array[:, 0, 0],
+                              VV=self.__array[:, 1, 1],
+                              HH=self.__array[:, 2, 2])
+
+        return I
