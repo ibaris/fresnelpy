@@ -22,7 +22,7 @@ install:
   - python setup.py install
 
 script:
-  - coverage run --source fresnespy/ -m pytest
+  - coverage run --source fresnespy/ -m pytest --cov=fresnelpy fresnelpy/test
 
 after_success:
   - coveralls
