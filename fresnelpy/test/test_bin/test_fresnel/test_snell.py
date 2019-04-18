@@ -7,7 +7,7 @@ from __future__ import division
 import numpy as np
 
 from fresnelpy.bin.bin_fresnel import snell
-
+from fresnelpy.test.datadir_wrapper import datadir
 
 class TestValues:
     def test1(self, datadir):

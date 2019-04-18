@@ -5,7 +5,6 @@ Created on 17.04.19 by ibaris
 from __future__ import division
 
 import os
-from distutils import dir_util
 
 import numpy as np
 import pytest
