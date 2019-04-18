@@ -117,7 +117,9 @@ setup(name='fresnelpy',
           "Programming Language :: Python :: 3.4"],
 
       # Include Package Data -------------------------------------------------------------------------------
-      package_data={'fresnelpy/bin/bin_unit': ['*.pxd', '*.c']},
+      package_data={'fresnelpy/bin/bin_auxiliary': ['*.pxd', '*.c'],
+                    'fresnelpy/bin/bin_fresnel': ['*.pxd', '*.c']},
+
       include_package_data=True,
       zip_safe=False,
 

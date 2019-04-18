@@ -1,2 +1,4 @@
 recursive-include fresnespy/bin *.c
 recursive-include fresnespy/bin *.pyx
+include requirements.txt
+include LICENSE
